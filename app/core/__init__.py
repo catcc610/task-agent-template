@@ -1,0 +1,1 @@
+"""Core functionality module for the Task Agent Template Framework.""" 

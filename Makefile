@@ -1,0 +1,2 @@
+init:
+	uv sync

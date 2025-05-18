@@ -1,0 +1,7 @@
+app_name: "task-agent-dev"
+
+inference:
+  max_concurrent_tasks: 10
+  timeout_seconds: 120 
+
+DEV_MODE: true
