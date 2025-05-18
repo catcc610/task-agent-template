@@ -16,16 +16,17 @@
 .
 ├── app/
 │   ├── api/
-│   │   ├── models.py           # API请求和响应数据模型
-│   │   └── routes.py           # API路由
-│   └── core/
-│       ├── config.py           # 配置管理
-│       └── task_manager.py     # 任务管理器
+│   │   ├── schemas.py         # API请求和响应数据模型
+│   │   └── routes.py          # API路由
+│   ├── core/
+│   │   ├── config.py          # 配置管理
+│   │   └── task_manager.py    # 任务管理器
+│   └── __init__.py            # 包初始化
 ├── config/
-│   ├── local.yaml              # 本地环境配置
-│   └── develop.yaml            # 开发环境配置
-├── requirements.txt            # 项目依赖
-└── main.py                     # 应用入口
+│   ├── local.yaml             # 本地环境配置
+│   └── develop.yaml           # 开发环境配置
+├── requirements.txt           # 项目依赖
+└── main.py                    # 应用入口
 ```
 
 ## 如何使用
