@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import router as task_router
 from app.core.config import get_config
-from app.core.services import cleanup_application, initialize_application
+from app.core.task_manager import get_task_manager
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +21,7 @@ async def create_app(config_dir: Path | str = Path("config"), environment: str |
     Returns:
         配置好的FastAPI应用实例
     """
-    # 初始化配置和服务
-    await initialize_application(config_dir, environment)
+
     
     # 获取配置
     config = get_config()
@@ -44,13 +43,11 @@ async def create_app(config_dir: Path | str = Path("config"), environment: str |
     async def startup_event() -> None:
         """应用启动时初始化服务。"""
         logger.info("应用程序启动中...")
+        
+        # 启动定期任务清理
+        task_manager = get_task_manager()
+        await task_manager.start_periodic_cleanup()
+        
         logger.info("应用程序启动完成")
-    
-    @app.on_event("shutdown")
-    async def shutdown_event() -> None:
-        """应用关闭时清理资源。"""
-        logger.info("应用程序关闭中...")
-        await cleanup_application()
-        logger.info("应用程序关闭完成")
     
     return app 

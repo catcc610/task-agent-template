@@ -137,6 +137,24 @@ curl http://localhost:8000/api/v1/health
 - `app_name`: 应用名称
 - `inference.max_concurrent_tasks`: 最大并发任务数
 - `inference.timeout_seconds`: 任务超时时间
+- `inference.task_retention_hours`: 已完成任务保留时间(小时)，设为0表示不清理
+- `inference.max_tasks_count`: 最大保存任务数量
+
+## 任务管理
+
+### 任务清理机制
+
+系统包含自动任务清理机制，防止内存泄漏和资源浪费：
+
+1. 定期清理：系统每小时自动检查并清理过期任务
+2. 创建任务时清理：每次创建新任务前会检查并清理过期任务
+3. 清理规则：
+   - 清理已完成/失败且超过保留期的任务
+   - 如果任务总数超过最大限制，会按创建时间排序删除最早的已完成任务
+
+可通过配置文件调整清理策略：
+- `task_retention_hours`: 设置任务保留时间，0表示不清理
+- `max_tasks_count`: 设置最大任务数量限制
 
 ## 开发说明
 

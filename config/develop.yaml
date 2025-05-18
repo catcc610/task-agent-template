@@ -2,6 +2,8 @@ app_name: "task-agent-dev"
 
 inference:
   max_concurrent_tasks: 10
-  timeout_seconds: 120 
+  timeout_seconds: 120
+  task_retention_hours: 48  # 开发环境保留已完成任务48小时
+  max_tasks_count: 2000     # 开发环境最多保存2000个任务
 
 DEV_MODE: true

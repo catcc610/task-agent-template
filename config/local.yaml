@@ -2,6 +2,8 @@ app_name: "task-agent"
 
 inference:
   max_concurrent_tasks: 5
-  timeout_seconds: 60 
+  timeout_seconds: 60
+  task_retention_hours: 24  # 保留已完成任务24小时
+  max_tasks_count: 1000     # 最多保存1000个任务
 
 DEV_MODE: true
