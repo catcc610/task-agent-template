@@ -7,8 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router as task_router
 from app.core.config import get_config
 from app.core.task_manager import get_task_manager
+from app.utils.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 async def create_app(config_dir: Path | str = Path("config"), environment: str | None = None) -> FastAPI:

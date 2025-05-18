@@ -16,6 +16,17 @@ class InferenceConfig(BaseModel):
     max_tasks_count: int = Field(default=1000, description="最大保存任务数量", gt=0)
 
 
+class LoggingConfig(BaseModel):
+    """日志配置"""
+    level: str = Field(default="INFO", description="日志级别")
+    format: str = Field(
+        default="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        description="日志格式"
+    )
+    file_enabled: bool = Field(default=False, description="是否启用文件日志")
+    file_path: str = Field(default="logs/app.log", description="文件日志路径")
+
+
 class AppConfig(BaseModel):
     """应用全局配置"""
     app_name: str = "task-agent"
@@ -35,6 +46,7 @@ class Config(BaseModel):
     app_name: str = "task-agent"
     api: ApiConfig = Field(default_factory=ApiConfig)
     inference: InferenceConfig = Field(default_factory=InferenceConfig)
+    logging: LoggingConfig = Field(default_factory=LoggingConfig)
 
 
 def load_config_from_file(config_dir: Path, environment: str = "local") -> Dict[str, Any]:

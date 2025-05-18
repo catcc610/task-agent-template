@@ -6,4 +6,10 @@ inference:
   task_retention_hours: 48  # 开发环境保留已完成任务48小时
   max_tasks_count: 2000     # 开发环境最多保存2000个任务
 
+logging:
+  level: "DEBUG"             # 开发环境使用DEBUG级别
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_enabled: true         # 开发环境启用文件日志
+  file_path: "logs/dev.log"  # 开发环境日志文件
+
 DEV_MODE: true

@@ -9,7 +9,9 @@ from app.api.schemas import (
     HealthResponse
 )
 from app.core.task_manager import get_task_manager
+from app.utils.logger import get_logger
 
+logger = get_logger(__name__)
 router = APIRouter()
 
 
@@ -27,12 +29,15 @@ async def create_inference_task(
     Returns:
         任务创建响应，包含任务ID和状态
     """
+    logger.info(f"收到推理任务请求: {request.input[:50]}...")
+    
     task_manager = get_task_manager()
     task = await task_manager.create_task(request.model_dump())
     
     # 将任务放入后台执行
     background_tasks.add_task(task_manager.run_task, task)
     
+    logger.info(f"已创建任务: {task.task_id}, 状态: {task.status}")
     return InferenceResponse(
         task_id=task.task_id,
         status=task.status
@@ -52,10 +57,13 @@ async def get_task_status(task_id: str):
     Raises:
         HTTPException: 当任务不存在时
     """
+    logger.info(f"查询任务状态: {task_id}")
     task = await get_task_manager().get_task(task_id)
     if not task:
+        logger.warning(f"任务不存在: {task_id}")
         raise HTTPException(status_code=404, detail=f"任务 {task_id} 不存在")
     
+    logger.info(f"获取到任务: {task_id}, 状态: {task.status}")
     return TaskStatusResponse(
         task_id=task.task_id,
         status=task.status,
@@ -74,11 +82,14 @@ async def health_check():
     Returns:
         健康状态信息
     """
+    logger.debug("收到健康检查请求")
     task_manager = get_task_manager()
     tasks = await task_manager.get_all_tasks()
     
-    return HealthResponse(
+    response = HealthResponse(
         status="healthy",
         version="1.0.0",
         tasks_count=len(tasks)
-    ) 
+    )
+    logger.debug(f"健康检查响应: {response.model_dump()}")
+    return response 

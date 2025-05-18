@@ -6,11 +6,11 @@ import asyncio
 import uuid
 from uuid import UUID
 import time
-import logging
 from datetime import datetime, timedelta
 from app.core.config import get_config
+from app.utils.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class Task:
@@ -130,6 +130,7 @@ class TaskManager:
         task_id = str(uuid.uuid4())
         task = Task(task_id, payload)
         self.tasks[task_id] = task
+        logger.debug(f"创建新任务: {task_id}")
         return task
     
     async def get_task(self, task_id: str) -> Task | None:
@@ -141,7 +142,10 @@ class TaskManager:
         Returns:
             任务对象，如不存在返回None
         """
-        return self.tasks.get(task_id)
+        task = self.tasks.get(task_id)
+        if not task:
+            logger.warning(f"尝试获取不存在的任务: {task_id}")
+        return task
     
     async def run_task(self, task: Task) -> None:
         """执行任务
@@ -152,6 +156,7 @@ class TaskManager:
         task.status = "running"
         task.started_at = datetime.now()
         task.updated_at = datetime.now()  # 兼容旧代码
+        logger.info(f"开始执行任务: {task.task_id}")
         
         async with self.semaphore:
             try:
@@ -166,11 +171,13 @@ class TaskManager:
                 task.status = "completed"
                 task.progress = 1.0  # 兼容旧代码
                 self._completed_count += 1
+                logger.info(f"任务执行成功: {task.task_id}")
             except Exception as e:
                 task.error = str(e)
                 task.status = "failed"
                 task.result = {"error": str(e)}
                 self._failed_count += 1
+                logger.error(f"任务执行失败: {task.task_id}, 错误: {str(e)}")
             finally:
                 task.completed_at = datetime.now()
                 task.updated_at = datetime.now()  # 兼容旧代码
@@ -218,6 +225,7 @@ class TaskManager:
         
         task.status = "cancelled"
         task.updated_at = datetime.now()
+        logger.info(f"已取消任务: {task_id}")
         
     def get_metrics(self) -> Dict[str, Any]:
         """获取指标，兼容旧方法
@@ -225,7 +233,7 @@ class TaskManager:
         Returns:
             指标字典
         """
-        return {
+        metrics = {
             "task_count": len(self.tasks),
             "running_tasks": len([t for t in self.tasks.values() if t.status == "running"]),
             "pending_tasks": len([t for t in self.tasks.values() if t.status == "pending"]),
@@ -233,6 +241,8 @@ class TaskManager:
             "failed_tasks": self._failed_count,
             "uptime": time.time() - self._start_time
         }
+        logger.debug(f"获取任务指标: {metrics}")
+        return metrics
 
 
 # 全局任务管理器实例
@@ -248,4 +258,5 @@ def get_task_manager() -> TaskManager:
     global global_task_manager
     if global_task_manager is None:
         global_task_manager = TaskManager()
+        logger.info("已创建新的全局任务管理器实例")
     return global_task_manager 
